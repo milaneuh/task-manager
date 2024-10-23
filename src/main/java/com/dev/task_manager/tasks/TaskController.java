@@ -2,9 +2,11 @@ package com.dev.task_manager.tasks;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -15,32 +17,30 @@ class TaskController {
     TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
+
+    @GetMapping("/")
+    public String index(Model model) {
+        model.addAttribute("tasks", taskRepository.findAll());
+        return "index";
+    }
+
+    @PostMapping("/add-task")
+    public String addTask(@RequestParam String description, Model model) {
+        Task newTask = new Task(description);
+        taskRepository.save(newTask);
+        model.addAttribute("task",newTask);
+        return "task-row";
+    }
+
+    @DeleteMapping("/delete-task/{id}")
+    @ResponseBody
+    public void deleteTask(@PathVariable UUID id) {
+        taskRepository.deleteById(id);
+    }
+
 }
 
 @Repository
-interface TaskRepository extends CrudRepository<Task, UUID> {}
-
-@Table(name = "task")
-class Task {
-    @Id
-    private final UUID id = UUID.randomUUID();
-    private String description;
-    private boolean done;
-
-    public Task(String description) {
-        this.description = description;
-        this.done = false;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void unFinishTask(){
-        this.done = false;
-    }
-
-    public void finishTask(){
-       this.done = true;
-    }
+interface TaskRepository extends ListCrudRepository<Task, UUID> {
 }
+
