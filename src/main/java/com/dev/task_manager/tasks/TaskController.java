@@ -1,7 +1,5 @@
 package com.dev.task_manager.tasks;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
