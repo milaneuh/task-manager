@@ -22,11 +22,33 @@ class TaskController {
         return "index";
     }
 
+    @GetMapping("/edit-task/{id}")
+    public String getEditPage(@PathVariable UUID id, Model model) throws Exception {
+        taskRepository.findById(id).ifPresentOrElse(task -> model.addAttribute("task", task), () -> {
+            throw new RuntimeException("Task not found, id = " + id);
+        });
+        return "edit-task";
+    }
+
+    @PatchMapping("/edit-task/{id}")
+    public String editTask(@PathVariable UUID id, @RequestParam String description, Model model) {
+
+        taskRepository.findById(id).ifPresentOrElse(task -> {
+            task.setDescription(description);
+            taskRepository.save(task);
+        }, () -> {
+            throw new RuntimeException("Task not found, id = " + id);
+        });
+
+        model.addAttribute("tasks", taskRepository.findAll());
+        return "index";
+    }
+
     @PostMapping("/add-task")
     public String addTask(@RequestParam String description, Model model) {
         Task newTask = new Task(description);
         taskRepository.save(newTask);
-        model.addAttribute("task",newTask);
+        model.addAttribute("task", newTask);
         return "task-row";
     }
 
